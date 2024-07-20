@@ -32,6 +32,7 @@ def sanitize_text(text):
     # text = re.sub(r'[^\w\s.,!?\'"]', '', text)
     return text
 
+
 def takecommand():
     r = sr.Recognizer()
     with sr.Microphone() as source:
@@ -147,18 +148,7 @@ def chat(query):
     print()
 
 
-def open_notepad():
-    # Path to WhatsApp executable
-    notepad_path = "C:\\Windows\\notepad.exe"
-
-    if os.path.exists(notepad_path):
-        os.startfile(notepad_path)
-        say("Opening notepad.")
-    else:
-        say("notepad executable not found.")
-
-
-def generate_response(prompt,max_length=500):
+def generate_response(prompt, max_length=500):
     vertexai.init(project="zenai-429916", location="us-central1")
     model = GenerativeModel("gemini-1.5-flash-001")
 
@@ -205,16 +195,85 @@ def zen_intro():
 
 
 def TaskExecution():
-    p.press('esc')
-    say("Face recognition successful")
     say("welcome back sir")
     while True:
         query = takecommand()
         if "shutdown" in query.lower() or "stop" in query.lower() or "turn off" in query.lower() or "power off" in query.lower() or "shut down" in query.lower():
             shutdown_assistant()
         else:
-            sites = [["youtube", "https://www.youtube.com"], ["wikipedia", "https://www.wikipedia.com"],
-                     ["google", "https://www.google.com"]]
+            sites = [
+                ["youtube", "https://www.youtube.com"],
+                ["wikipedia", "https://www.wikipedia.com"],
+                ["google", "https://www.google.com"],
+                ["facebook", "https://www.facebook.com"],
+                ["twitter", "https://www.twitter.com"],
+                ["instagram", "https://www.instagram.com"],
+                ["linkedin", "https://www.linkedin.com"],
+                ["amazon", "https://www.amazon.com"],
+                ["reddit", "https://www.reddit.com"],
+                ["yahoo", "https://www.yahoo.com"],
+                ["netflix", "https://www.netflix.com"],
+                ["tiktok", "https://www.tiktok.com"],
+                ["ebay", "https://www.ebay.com"],
+                ["pinterest", "https://www.pinterest.com"],
+                ["tumblr", "https://www.tumblr.com"],
+                ["microsoft", "https://www.microsoft.com"],
+                ["apple", "https://www.apple.com"],
+                ["quora", "https://www.quora.com"],
+                ["yelp", "https://www.yelp.com"],
+                ["craigslist", "https://www.craigslist.org"],
+                ["whatsapp", "https://www.whatsapp.com"],
+                ["zoom", "https://www.zoom.us"],
+                ["paypal", "https://www.paypal.com"],
+                ["spotify", "https://www.spotify.com"],
+                ["aliexpress", "https://www.aliexpress.com"],
+                ["bilibili", "https://www.bilibili.com"],
+                ["vimeo", "https://www.vimeo.com"],
+                ["dropbox", "https://www.dropbox.com"],
+                ["onedrive", "https://www.onedrive.com"],
+                ["github", "https://www.github.com"],
+                ["stackoverflow", "https://www.stackoverflow.com"],
+                ["medium", "https://www.medium.com"],
+                ["producthunt", "https://www.producthunt.com"],
+                ["mailchimp", "https://www.mailchimp.com"],
+                ["hubspot", "https://www.hubspot.com"],
+                ["webmd", "https://www.webmd.com"],
+                ["goodreads", "https://www.goodreads.com"],
+                ["imdb", "https://www.imdb.com"],
+                ["foxnews", "https://www.foxnews.com"],
+                ["nbcnews", "https://www.nbcnews.com"],
+                ["abcnews", "https://www.abcnews.go.com"],
+                ["espn", "https://www.espn.com"],
+                ["theatlantic", "https://www.theatlantic.com"],
+                ["nationalgeographic", "https://www.nationalgeographic.com"],
+                ["hbo", "https://www.hbo.com"],
+                ["paramount", "https://www.paramount.com"],
+                ["twitch", "https://www.twitch.tv"],
+                ["etsy", "https://www.etsy.com"],
+                ["airbnb", "https://www.airbnb.com"],
+                ["uber", "https://www.uber.com"],
+                ["lyft", "https://www.lyft.com"],
+                ["robinhood", "https://www.robinhood.com"],
+                ["binance", "https://www.binance.com"],
+                ["coinbase", "https://www.coinbase.com"],
+                ["telegram", "https://www.telegram.org"],
+                ["signal", "https://www.signal.org"],
+                ["meetup", "https://www.meetup.com"],
+                ["eventbrite", "https://www.eventbrite.com"],
+                ["canva", "https://www.canva.com"],
+                ["wix", "https://www.wix.com"],
+                ["shopify", "https://www.shopify.com"],
+                ["square", "https://www.squareup.com"],
+                ["stripe", "https://www.stripe.com"],
+                ["adobe", "https://www.adobe.com"],
+                ["mozilla", "https://www.mozilla.org"],
+                ["ubuntu", "https://www.ubuntu.com"],
+                ["archlinux", "https://www.archlinux.org"],
+                ["kde", "https://www.kde.org"],
+                ["gnome", "https://www.gnome.org"],
+                ["elementary", "https://www.elementary.io"]
+            ]
+
             for site in sites:
                 if f"open {site[0]}".lower() in query.lower():
                     say(f"opening {site[0]} sir...")
@@ -230,17 +289,42 @@ def TaskExecution():
             elif "time" in query:
                 srtfTime = datetime.datetime.now().strftime("%H:%M:%S")
                 say(f"Time is {srtfTime} sir..")
+
+
             elif "notepad" in query.lower():
                 open_notepad()
+                def open_notepad():
+                    # Path to WhatsApp executable
+                    notepad_path = "C:\\Windows\\notepad.exe"
+
+                    if os.path.exists(notepad_path):
+                        os.startfile(notepad_path)
+                        say("Opening notepad.")
+                    else:
+                        say("notepad executable not found.")
+
 
             elif "introduce" in query.lower() or "yourself" in query.lower() or "about you" in query.lower():
-                intro=zen_intro()
+                intro = zen_intro()
                 say(intro)
+
+            elif "you can sleep" in query.lower() or "take a nap" in query.lower():
+                say("call me when you need sir...")
+                break
 
             else:
                 response = generate_response(query.lower())
                 say(response)
                 print(response)
+
+
+def permission_command():
+    while True:
+        permission = takecommand()
+        if "wake up" in permission:
+            TaskExecution()
+        elif "shutdown" in permission.lower() or "stop" in permission.lower() or "turn off" in permission.lower() or "power off" in permission.lower() or "shut down" in permission.lower():
+            shutdown_assistant()
 
 
 if __name__ == '__main__':
@@ -275,12 +359,17 @@ if __name__ == '__main__':
             if (accuracy < 100):
                 id = names[id]
                 accuracy = " {0}%".format(round(100 - accuracy))
-                TaskExecution()
+                p.press('esc')
+                say("Face recognition successful")
+                cam.release()
+                cv2.destroyAllWindows()
+                permission_command()
+
             else:
                 id = "unknown"
                 accuracy = " {0}%".format(round(100 - accuracy))
-            cv2.putText(img, str(id), (x + 5, y - 5), font, 1, (255, 255, 255), 2)
-            cv2.putText(img, str(accuracy), (x + 5, y + h - 5), font, 1, (255, 255, 0), 1)
+                cv2.putText(img, str(id), (x + 5, y - 5), font, 1, (255, 255, 255), 2)
+                cv2.putText(img, str(accuracy), (x + 5, y + h - 5), font, 1, (255, 255, 0), 1)
 
         cv2.imshow('camera', img)
         k = cv2.waitKey(10) & 0xff
