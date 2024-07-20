@@ -1,42 +1,46 @@
 import cv2
 
-def main():
-    # Load the pre-trained Haar Cascade model for face detection
-    face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
+recognizer=cv2.face.LBPHFaceRecognizer_create()
+recognizer.read('trainer/trainer.yml')
+cascadePath = "haarcascade_frontalface_default.xml"
+faceCascade = cv2.CascadeClassifier(cascadePath)
 
-    # Initialize video capture (0 for the default webcam)
-    video_capture = cv2.VideoCapture(0)
+font=cv2.FONT_HERSHEY_SIMPLEX
 
-    while True:
-        # Capture frame-by-frame
-        ret, frame = video_capture.read()
+id=2
+names=['','Binit']
 
-        # Check if the frame was captured successfully
-        if not ret:
-            print("Failed to grab frame")
-            break
+cam=cv2.VideoCapture(0,cv2.CAP_DSHOW)
+cam.set(3,640)
+cam.set(4,480)
 
-        # Convert the image to grayscale (Haar Cascade works on grayscale images)
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+minW=0.1*cam.get(3)
+minH=0.1*cam.get(4)
 
-        # Detect faces in the grayscale image
-        faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
+while True:
+    ret,img=cam.read()
+    converted_image=cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
+    faces=faceCascade.detectMultiScale(
+        converted_image,
+        scaleFactor=1.2,
+        minNeighbors=5,
+        minSize=(int(minW), int(minH)),)
+    for(x,y,w,h) in faces:
+        cv2.rectangle(img,(x,y),(x+w,y+h),(0,255,0),2)
+        id,accuracy=recognizer.predict(converted_image[y:y+h,x:x+w])
+        if(accuracy<100):
+            id=names[id]
+            accuracy=" {0}%".format(round(100-accuracy))
+        else:
+            id="unknown"
+            accuracy=" {0}%".format(round(100-accuracy))
+        cv2.putText(img,str(id),(x+5,y-5),font,1,(255,255,255),2)
+        cv2.putText(img,str(accuracy),(x+5,y+h-5),font,1,(255,255,0),1)
 
-        # Loop through each detected face
-        for (x, y, w, h) in faces:
-            # Draw a rectangle around the face
-            cv2.rectangle(frame, (x, y), (x + w, y + h), (255, 0, 0), 2)
-
-        # Display the resulting frame
-        cv2.imshow('Face Detection', frame)
-
-        # Break the loop when 'q' is pressed
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-
-    # Release the video capture and close all windows
-    video_capture.release()
-    cv2.destroyAllWindows()
-
-if __name__ == "__main__":
-    main()
+    cv2.imshow('camera',img)
+    k=cv2.waitKey(10) & 0xff
+    if k==27:
+        break
+print("Program terminated....")
+cam.release()
+cv2.destroyAllWindows()

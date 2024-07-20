@@ -1,26 +1,36 @@
-import pickle
+import re
 import cv2
-import face_recognition
+import pyttsx3
 import speech_recognition as sr
 import webbrowser
 import random
 import sys
 import os
 import datetime
-import openai
-import win32com.client
-from fer import FER
+import pyautogui as p
+import vertexai
+from vertexai.generative_models import GenerativeModel, Part, FinishReason
+import vertexai.preview.generative_models as generative_models
+import regex as re
 
-from config import apikey
-openai.api_key = apikey
+engine = pyttsx3.init('sapi5')
+voices = engine.getProperty('voices')
+engine.setProperty('voice', voices[1].id)
+engine.setProperty('rate', 195)
 
-speaker = win32com.client.Dispatch("SAPI.SpVoice")
+
+def say(audio):
+    engine.say(audio)
+    print(audio)
+    engine.runAndWait()
 
 
-def say(text):
-    s = text
-    speaker.Speak(s)
-
+def sanitize_text(text):
+    # Remove asterisks
+    text = re.sub(r'\*', '', text)
+    # Remove emojis and special characters except common punctuation
+    # text = re.sub(r'[^\w\s.,!?\'"]', '', text)
+    return text
 
 def takecommand():
     r = sr.Recognizer()
@@ -132,9 +142,9 @@ def shutdown_assistant():
     say("pleasure working with you sir... call me when needed...")
     sys.exit()  # Exit the script
 
+
 def chat(query):
     print()
-
 
 
 def open_notepad():
@@ -147,83 +157,57 @@ def open_notepad():
     else:
         say("notepad executable not found.")
 
-def generate_response(prompt):
 
-    response = openai.Completion.create(
-        model="gpt-3.5-turbo",
-        messages=[
-            {"role": "system", "content": "You are a helpful assistant."},
-            {"role": "user", "content": prompt}
-        ],
-        temperature=1,
-        max_tokens=1012,
-        top_p=1,
-        frequency_penalty=0,
-        presence_penalty=0
+def generate_response(prompt,max_length=500):
+    vertexai.init(project="zenai-429916", location="us-central1")
+    model = GenerativeModel("gemini-1.5-flash-001")
+
+    generation_config = {
+        "max_output_tokens": max_length,
+        "temperature": 1,
+        "top_p": 0.95,
+    }
+
+    safety_settings = {
+        generative_models.HarmCategory.HARM_CATEGORY_HATE_SPEECH: generative_models.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+        generative_models.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT: generative_models.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+        generative_models.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT: generative_models.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+        generative_models.HarmCategory.HARM_CATEGORY_HARASSMENT: generative_models.HarmBlockThreshold.BLOCK_MEDIUM_AND_ABOVE,
+    }
+
+    responses = model.generate_content(
+        [sanitize_text(prompt)],
+        generation_config=generation_config,
+        safety_settings=safety_settings,
+        stream=True,
     )
-    response_content = response['choices'][0]['message']['content']
-    text=""
-    text+=response_content
-    if not os.path.exists("OpenAi"):
-        os.mkdir("OpenAi")
-    with open(f"OpenAi/{''.join(prompt.split('intelligence')[1:]).strip()}.txt","w")as f:
-        f.write(text)
+
+    response_text = ""
+    for response in responses:
+        response_text += response.text
+    return sanitize_text(response_text)
 
 
-def recognize_face(known_face_encodings, known_face_names):
-    video_capture = cv2.VideoCapture(0)
-    while True:
-        ret, frame = video_capture.read()
-        if not ret:
-            break
-
-        # Convert the frame from BGR to RGB
-        rgb_frame = frame[:, :, ::-1]
-
-        # Detect face locations
-        face_locations = face_recognition.face_locations(rgb_frame)
-
-        # Get face encodings for detected faces with optional parameters
-        face_encodings = face_recognition.face_encodings(
-            rgb_frame,
-            known_face_locations=face_locations,  # Use detected face locations
-            num_jitters=1,  # Number of image upsamplings
-            model='large'  # Face recognition model
-        )
-
-        for (top, right, bottom, left), face_encoding in zip(face_locations, face_encodings):
-            # Compare the detected face with known faces
-            matches = face_recognition.compare_faces(known_face_encodings, face_encoding)
-            name = "Unknown"
-            if True in matches:
-                first_match_index = matches.index(True)
-                name = known_face_names[first_match_index]
-                if name == "Binit":  # Replace with your actual name
-                    say("Hello, it's nice to see you!")
-            # Draw a rectangle around the face and put text with the name
-            cv2.rectangle(frame, (left, top), (right, bottom), (0, 0, 255), 2)
-            cv2.putText(frame, name, (left + 6, bottom - 6), cv2.FONT_HERSHEY_DUPLEX, 0.5, (255, 255, 255), 1)
-
-        # Display the resulting frame
-        cv2.imshow('Video', frame)
-
-        # Break the loop if 'q' is pressed
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
-
-    # Release the video capture and destroy windows
-    video_capture.release()
-    cv2.destroyAllWindows()
+def zen_intro():
+    introductions = [
+        (
+            "Greetings! I’m Zen, your dedicated virtual assistant. With a wealth of knowledge and a readiness to assist, I'm here to make your life easier and more informed. How may I serve you today?"),
+        (
+            "Hello there! I'm Zen, your ever-ready assistant. My mission is to provide you with insightful answers and assist with your tasks. Feel free to ask me anything; I’m here to help with a touch of elegance."),
+        (
+            "Welcome! I’m Zen, your sophisticated assistant. Whether you seek information or need help with various tasks, I’m here to assist you with grace and efficiency. What can I do for you today?"),
+        (
+            "Salutations! Zen at your service. As your virtual assistant, I'm equipped to handle your queries and support your needs with flair. Let me know how I can enhance your day."),
+        (
+            "Hi! I’m Zen, your charming assistant. My role is to assist, inform, and enrich your experience with thoughtful responses and assistance. How can I assist you in a delightful manner today?")
+    ]
+    return random.choice(introductions)
 
 
-if __name__ == '__main__':
-    say("hello sir I am Zen")
-    known_face_encodings, known_face_names = [], []
-    if os.path.exists("known_faces.pkl"):
-        with open("known_faces.pkl", "rb") as f:
-            known_face_encodings, known_face_names = pickle.load(f)
-    else:
-        say("No known faces data found. Please add known faces.")
+def TaskExecution():
+    p.press('esc')
+    say("Face recognition successful")
+    say("welcome back sir")
     while True:
         query = takecommand()
         if "shutdown" in query.lower() or "stop" in query.lower() or "turn off" in query.lower() or "power off" in query.lower() or "shut down" in query.lower():
@@ -236,21 +220,72 @@ if __name__ == '__main__':
                     say(f"opening {site[0]} sir...")
                     webbrowser.open(site[1])
 
-
             # Add play random song functionality
             if "song" in query.lower() or "music" in query.lower():
                 say("Playing a random song on YouTube Music.")
                 play_random_song()
 
-            elif "face recognition" in query.lower() or "face" in query.lower():
-                recognize_face(known_face_encodings, known_face_names)
+
 
             elif "time" in query:
                 srtfTime = datetime.datetime.now().strftime("%H:%M:%S")
                 say(f"Time is {srtfTime} sir..")
             elif "notepad" in query.lower():
                 open_notepad()
-            elif "ai" in query.lower() or "chatgpt" in query.lower() or "artificial intelligence" in query.lower():
-                generate_response(query)
+
+            elif "introduce" in query.lower() or "yourself" in query.lower() or "about you" in query.lower():
+                intro=zen_intro()
+                say(intro)
+
             else:
-                chat(query)
+                response = generate_response(query.lower())
+                say(response)
+                print(response)
+
+
+if __name__ == '__main__':
+    recognizer = cv2.face.LBPHFaceRecognizer_create()
+    recognizer.read('trainer/trainer.yml')
+    cascadePath = "haarcascade_frontalface_default.xml"
+    faceCascade = cv2.CascadeClassifier(cascadePath)
+
+    font = cv2.FONT_HERSHEY_SIMPLEX
+
+    id = 2
+    names = ['', 'Binit']
+
+    cam = cv2.VideoCapture(0, cv2.CAP_DSHOW)
+    cam.set(3, 640)
+    cam.set(4, 480)
+
+    minW = 0.1 * cam.get(3)
+    minH = 0.1 * cam.get(4)
+
+    while True:
+        ret, img = cam.read()
+        converted_image = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        faces = faceCascade.detectMultiScale(
+            converted_image,
+            scaleFactor=1.2,
+            minNeighbors=5,
+            minSize=(int(minW), int(minH)), )
+        for (x, y, w, h) in faces:
+            cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            id, accuracy = recognizer.predict(converted_image[y:y + h, x:x + w])
+            if (accuracy < 100):
+                id = names[id]
+                accuracy = " {0}%".format(round(100 - accuracy))
+                TaskExecution()
+            else:
+                id = "unknown"
+                accuracy = " {0}%".format(round(100 - accuracy))
+            cv2.putText(img, str(id), (x + 5, y - 5), font, 1, (255, 255, 255), 2)
+            cv2.putText(img, str(accuracy), (x + 5, y + h - 5), font, 1, (255, 255, 0), 1)
+
+        cv2.imshow('camera', img)
+        k = cv2.waitKey(10) & 0xff
+        if k == 27:
+            break
+    print("Program terminated....")
+    cam.release()
+    cv2.destroyAllWindows()
