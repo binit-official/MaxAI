@@ -1,6 +1,5 @@
-import re
 import requests
-import subprocess
+from datetime import datetime
 import urllib.parse
 import cv2
 import pyttsx3
@@ -12,7 +11,7 @@ import os
 import datetime
 import pyautogui as p
 import vertexai
-from vertexai.generative_models import GenerativeModel, Part, FinishReason
+from vertexai.generative_models import GenerativeModel
 import vertexai.preview.generative_models as generative_models
 import regex as RE
 
@@ -261,7 +260,7 @@ def zen_intro():
         (
             "Hi! I’m Zen, your charming assistant. My role is to assist, inform, and enrich your experience with thoughtful responses and assistance. How can I assist you in a delightful manner today?")
     ]
-    sp=random.choice(introductions)
+    sp = random.choice(introductions)
     say(sp)
 
 
@@ -292,10 +291,8 @@ def open_notepad():
         say("notepad executable not found.")
 
 
-
 def TaskExecution():
-
-    c=0
+    c = 0
     say("welcome back sir")
     api_key = "AIzaSyA2n_B-51waV2Ogr1J3rzlyuRycmw_bkDU"
     while True:
@@ -382,30 +379,30 @@ def TaskExecution():
                 if f"open {site[0]}".lower() in query.lower():
                     say(f"opening {site[0]} sir...")
                     webbrowser.open(site[1])
-                    c+=1
+                    c += 1
 
             # Add play random song functionality
             if "play a song" in query.lower() or "play music" in query.lower():
                 say("Playing a random song on YouTube Music.")
                 play_random_song()
-                c+=1
+                c += 1
 
 
 
             elif "time" in query:
                 srtfTime = datetime.datetime.now().strftime("%H:%M:%S")
                 say(f"Time is {srtfTime} sir..")
-                c+=1
+                c += 1
 
 
             elif "notepad" in query.lower():
                 open_notepad()
-                c+=1
+                c += 1
 
 
 
             elif 'navigate to' in query.lower() or "take me to" in query.lower():
-                c+=1
+                c += 1
                 if 'navigate to' in query.lower():
                     end_location = query.lower().split('navigate to', 1)[1].strip()
                 elif 'take me to' in query:
@@ -430,33 +427,31 @@ def TaskExecution():
 
 
             elif "where are we" in query.lower() or "where am i" in query.lower():
-                c+=1
+                c += 1
                 mymes = my_get_current_location()
                 say(mymes)
 
 
             elif "introduce" in query.lower() or "yourself" in query.lower() or "about you" in query.lower():
-                c+=1
+                c += 1
                 zen_intro()
 
 
 
             elif "you can sleep" in query.lower() or "take a nap" in query.lower() or "go to sleep" in query.lower() or "you can go to sleep" in query.lower():
-                c+=1
+                c += 1
                 sleepmess = zen_sleep()
                 say(sleepmess)
                 break
 
             else:
-                if (c==0):
+                if (c == 0):
                     response = generate_response(query.lower())
                     say(response)
                     print(response)
 
-
             say("Anything else sir?")
-            c=0
-
+            c = 0
 
 
 def zen_shutdown():
@@ -475,20 +470,45 @@ def zen_shutdown():
     return random.choice(shutdown_messages)
 
 
+def greet_and_time():
+    now = datetime.datetime.now()
+    current_time = now.strftime("%I:%M %p")  # Time in 12-hour format with AM/PM
+    current_hour = now.hour
+
+    # Determine the greeting based on the time of day
+    if 5 <= current_hour < 12:
+        greeting = "Good morning"
+    elif 12 <= current_hour < 18:
+        greeting = "Good afternoon"
+    else:
+        greeting = "Good evening"
+
+    # Construct the message
+    message = f"{greeting}, sir. The time is {current_time}."
+
+    return message
+
+
+# Example usage
+
+
 def permission_command():
     while True:
         permission = takecommand()
         if "wake up" in permission.lower() or "good morning" in permission.lower() or "game time" in permission.lower() or "raise and shine" in permission.lower() or "on" in permission.lower():
+            message = greet_and_time()
+            say(message)
             TaskExecution()
         elif "shutdown" in permission.lower() or "stop" in permission.lower() or "turn off" in permission.lower() or "power off" in permission.lower() or "shut down" in permission.lower():
             message = zen_shutdown()
             say(message)
             sys.exit()
         else:
-              pass
+            pass
+
 
 def main():
-    global flag
+    say("Hi there. Zen is online and ready to roll. Let’s get started by recognizing you first.")
     recognizer = cv2.face.LBPHFaceRecognizer_create()
     recognizer.read('trainer/trainer.yml')
     cascadePath = "haarcascade_frontalface_default.xml"
@@ -496,8 +516,8 @@ def main():
 
     font = cv2.FONT_HERSHEY_SIMPLEX
 
-    id = 3
-    names = ['', 'Binit',]
+    id = 4
+    names = ['', 'Binit', 'billi','sofia','she']
 
     cam = cv2.VideoCapture(0, cv2.CAP_DSHOW)
     cam.set(3, 640)
@@ -518,10 +538,11 @@ def main():
             cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
             id, accuracy = recognizer.predict(converted_image[y:y + h, x:x + w])
             if (accuracy < 100):
-                id = names[id-1]
+                id = names[id - 1]
                 accuracy = " {0}%".format(round(100 - accuracy))
                 p.press('esc')
                 say("Face recognition successful")
+                say("call me out if you need anything")
                 cam.release()
                 cv2.destroyAllWindows()
                 permission_command()
@@ -557,12 +578,5 @@ def main():
     cv2.destroyAllWindows()
 
 
-
 if __name__ == '__main__':
     main()
-
-
-
-
-
-
