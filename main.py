@@ -261,7 +261,8 @@ def zen_intro():
         (
             "Hi! I’m Zen, your charming assistant. My role is to assist, inform, and enrich your experience with thoughtful responses and assistance. How can I assist you in a delightful manner today?")
     ]
-    return random.choice(introductions)
+    sp=random.choice(introductions)
+    say(sp)
 
 
 def zen_sleep():
@@ -384,7 +385,7 @@ def TaskExecution():
                     c+=1
 
             # Add play random song functionality
-            if "song" in query.lower() or "music" in query.lower():
+            if "play a song" in query.lower() or "play music" in query.lower():
                 say("Playing a random song on YouTube Music.")
                 play_random_song()
                 c+=1
@@ -436,8 +437,9 @@ def TaskExecution():
 
             elif "introduce" in query.lower() or "yourself" in query.lower() or "about you" in query.lower():
                 c+=1
-                intro = zen_intro()
-                say(intro)
+                zen_intro()
+
+
 
             elif "you can sleep" in query.lower() or "take a nap" in query.lower() or "go to sleep" in query.lower() or "you can go to sleep" in query.lower():
                 c+=1
@@ -446,13 +448,14 @@ def TaskExecution():
                 break
 
             else:
-                if (c>0):
+                if (c==0):
                     response = generate_response(query.lower())
                     say(response)
                     print(response)
 
 
             say("Anything else sir?")
+            c=0
 
 
 
@@ -482,10 +485,9 @@ def permission_command():
             say(message)
             sys.exit()
         else:
-            pass
+              pass
 
-
-if __name__ == '__main__':
+def main():
     global flag
     recognizer = cv2.face.LBPHFaceRecognizer_create()
     recognizer.read('trainer/trainer.yml')
@@ -494,8 +496,8 @@ if __name__ == '__main__':
 
     font = cv2.FONT_HERSHEY_SIMPLEX
 
-    id = 2
-    names = ['', 'Binit']
+    id = 3
+    names = ['', 'Binit',]
 
     cam = cv2.VideoCapture(0, cv2.CAP_DSHOW)
     cam.set(3, 640)
@@ -516,7 +518,7 @@ if __name__ == '__main__':
             cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
             id, accuracy = recognizer.predict(converted_image[y:y + h, x:x + w])
             if (accuracy < 100):
-                id = names[id]
+                id = names[id-1]
                 accuracy = " {0}%".format(round(100 - accuracy))
                 p.press('esc')
                 say("Face recognition successful")
@@ -527,6 +529,21 @@ if __name__ == '__main__':
             else:
                 id = "unknown"
                 accuracy = " {0}%".format(round(100 - accuracy))
+
+                p.press('esc')
+                say("Face recognition unsuccessful")
+                say("please enter the numeric pass key to access zen... ")
+                passkey = int(input("Enter the numneric pass key"))
+                if passkey == 1234:
+                    say("pass key recognition successful")
+                    say("you are currently accessing zen as a guest ")
+                    cam.release()
+                    cv2.destroyAllWindows()
+                    permission_command()
+
+                cam.release()
+                cv2.destroyAllWindows()
+
                 cv2.putText(img, str(id), (x + 5, y - 5), font, 1, (255, 255, 255), 2)
                 cv2.putText(img, str(accuracy), (x + 5, y + h - 5), font, 1, (255, 255, 0), 1)
 
@@ -535,5 +552,17 @@ if __name__ == '__main__':
         if k == 27:
             break
     print("Program terminated....")
+
     cam.release()
     cv2.destroyAllWindows()
+
+
+
+if __name__ == '__main__':
+    main()
+
+
+
+
+
+
