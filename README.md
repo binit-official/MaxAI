@@ -16,7 +16,10 @@ Welcome to Zen, a voice-controlled assistant designed to enhance your daily acti
 - Required Python packages (listed in `requirements.txt`)
   ```bash
    pip install -r requirements.txt
-  
+-run the samplegenerator.py 
+-then run the modelTrainer.py
+
+Now you are ready with the face detection procedure.
 
 ### Setup
 
