@@ -14,6 +14,9 @@ Welcome to Zen, a voice-controlled assistant designed to enhance your daily acti
 
 - Python 3.8+
 - Required Python packages (listed in `requirements.txt`)
+  ```bash
+   pip install -r requirements.txt
+  
 
 ### Setup
 
