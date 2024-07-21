@@ -14,7 +14,7 @@ import pyautogui as p
 import vertexai
 from vertexai.generative_models import GenerativeModel, Part, FinishReason
 import vertexai.preview.generative_models as generative_models
-import regex as re
+import regex as RE
 
 engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
@@ -30,7 +30,7 @@ def say(audio):
 
 def sanitize_text(text):
     # Remove asterisks
-    text = re.sub(r'\*', '', text)
+    text = RE.sub(r'\*', '', text)
     # Remove emojis and special characters except common punctuation
     # text = re.sub(r'[^\w\s.,!?\'"]', '', text)
     return text
@@ -70,6 +70,8 @@ def get_current_location():
         say("Sorry, sir. Due to a network issue, I am not able to find where we are.")
         print(f"Error: {e}")
         return None
+
+
 def my_get_current_location():
     say("Just a moment, sir...")
     try:
@@ -216,9 +218,6 @@ def play_random_song():
     say(f"Opened YouTube Music and started playing {song}.")
 
 
-
-
-
 def generate_response(prompt, max_length=500):
     vertexai.init(project="zenai-429916", location="us-central1")
     model = GenerativeModel("gemini-1.5-flash-001")
@@ -264,6 +263,7 @@ def zen_intro():
     ]
     return random.choice(introductions)
 
+
 def zen_sleep():
     sleep_messages = [
         (
@@ -280,13 +280,27 @@ def zen_sleep():
     return random.choice(sleep_messages)
 
 
+def open_notepad():
+    # Path to WhatsApp executable
+    notepad_path = "C:\\Windows\\notepad.exe"
+
+    if os.path.exists(notepad_path):
+        os.startfile(notepad_path)
+        say("Opening notepad.")
+    else:
+        say("notepad executable not found.")
+
+
+
 def TaskExecution():
+
+    c=0
     say("welcome back sir")
     api_key = "AIzaSyA2n_B-51waV2Ogr1J3rzlyuRycmw_bkDU"
     while True:
         query = takecommand()
         if "shutdown" in query.lower() or "stop" in query.lower() or "turn off" in query.lower() or "power off" in query.lower() or "shut down" in query.lower():
-            mes=zen_shutdown()
+            mes = zen_shutdown()
             say(mes)
             sys.exit()
         else:
@@ -367,32 +381,30 @@ def TaskExecution():
                 if f"open {site[0]}".lower() in query.lower():
                     say(f"opening {site[0]} sir...")
                     webbrowser.open(site[1])
+                    c+=1
 
             # Add play random song functionality
             if "song" in query.lower() or "music" in query.lower():
                 say("Playing a random song on YouTube Music.")
                 play_random_song()
+                c+=1
 
 
 
             elif "time" in query:
                 srtfTime = datetime.datetime.now().strftime("%H:%M:%S")
                 say(f"Time is {srtfTime} sir..")
+                c+=1
 
 
             elif "notepad" in query.lower():
                 open_notepad()
-                def open_notepad():
-                    # Path to WhatsApp executable
-                    notepad_path = "C:\\Windows\\notepad.exe"
+                c+=1
 
-                    if os.path.exists(notepad_path):
-                        os.startfile(notepad_path)
-                        say("Opening notepad.")
-                    else:
-                        say("notepad executable not found.")
+
 
             elif 'navigate to' in query.lower() or "take me to" in query.lower():
+                c+=1
                 if 'navigate to' in query.lower():
                     end_location = query.lower().split('navigate to', 1)[1].strip()
                 elif 'take me to' in query:
@@ -417,24 +429,32 @@ def TaskExecution():
 
 
             elif "where are we" in query.lower() or "where am i" in query.lower():
-                mymes=my_get_current_location()
+                c+=1
+                mymes = my_get_current_location()
                 say(mymes)
 
 
             elif "introduce" in query.lower() or "yourself" in query.lower() or "about you" in query.lower():
+                c+=1
                 intro = zen_intro()
                 say(intro)
 
             elif "you can sleep" in query.lower() or "take a nap" in query.lower() or "go to sleep" in query.lower() or "you can go to sleep" in query.lower():
-                sleepmess=zen_sleep()
+                c+=1
+                sleepmess = zen_sleep()
                 say(sleepmess)
                 break
 
             else:
-                response = generate_response(query.lower())
-                say(response)
-                print(response)
-        say("any thing else sir?")
+                if (c>0):
+                    response = generate_response(query.lower())
+                    say(response)
+                    print(response)
+
+
+            say("Anything else sir?")
+
+
 
 def zen_shutdown():
     shutdown_messages = [
@@ -458,12 +478,15 @@ def permission_command():
         if "wake up" in permission.lower() or "good morning" in permission.lower() or "game time" in permission.lower() or "raise and shine" in permission.lower() or "on" in permission.lower():
             TaskExecution()
         elif "shutdown" in permission.lower() or "stop" in permission.lower() or "turn off" in permission.lower() or "power off" in permission.lower() or "shut down" in permission.lower():
-            message=zen_shutdown()
+            message = zen_shutdown()
             say(message)
             sys.exit()
+        else:
+            pass
 
 
 if __name__ == '__main__':
+    global flag
     recognizer = cv2.face.LBPHFaceRecognizer_create()
     recognizer.read('trainer/trainer.yml')
     cascadePath = "haarcascade_frontalface_default.xml"
