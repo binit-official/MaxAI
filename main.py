@@ -139,13 +139,7 @@ def play_random_song():
     say(f"Opened YouTube Music and started playing {song}.")
 
 
-def shutdown_assistant():
-    say("pleasure working with you sir... call me when needed...")
-    sys.exit()  # Exit the script
 
-
-def chat(query):
-    print()
 
 
 def generate_response(prompt, max_length=500):
@@ -193,13 +187,28 @@ def zen_intro():
     ]
     return random.choice(introductions)
 
+def zen_sleep():
+    sleep_messages = [
+        (
+            "Entering sleep mode, sir. Please call me if you require assistance. Rest well!"),
+        (
+            "Zen is now in standby, sir. Kindly call out if you need my help. Have a good rest!"),
+        (
+            "Entering sleep mode now, sir. Please call for me when you return. Sweet dreams!"),
+        (
+            "Zen is now sleeping, sir. Feel free to call if you need anything. Enjoy your rest!"),
+        (
+            "Sleep mode activated, sir. Do call me if you need assistance. Rest peacefully!")
+    ]
+    return random.choice(sleep_messages)
+
 
 def TaskExecution():
     say("welcome back sir")
     while True:
         query = takecommand()
         if "shutdown" in query.lower() or "stop" in query.lower() or "turn off" in query.lower() or "power off" in query.lower() or "shut down" in query.lower():
-            shutdown_assistant()
+            pass
         else:
             sites = [
                 ["youtube", "https://www.youtube.com"],
@@ -308,23 +317,42 @@ def TaskExecution():
                 intro = zen_intro()
                 say(intro)
 
-            elif "you can sleep" in query.lower() or "take a nap" in query.lower():
-                say("call me when you need sir...")
+            elif "you can sleep" in query.lower() or "take a nap" in query.lower() or "go to sleep" in query.lower() or "you can go to sleep" in query.lower():
+                sleepmess=zen_sleep()
+                say(sleepmess)
                 break
 
             else:
                 response = generate_response(query.lower())
                 say(response)
                 print(response)
+        say("any thing else sir?")
+
+def zen_shutdown():
+    shutdown_messages = [
+        (
+            "Goodbye, sir. Zen is shutting down. Thank you for letting me assist you. Until next time, take care!"),
+        (
+            "Farewell, sir. Zen is going offline. It was a pleasure assisting you. Stay well until we meet again!"),
+        (
+            "Signing off, sir. Zen is powering down. Thank you for the opportunity to help. Have a great day ahead!"),
+        (
+            "Goodbye for now, sir. Zen is going offline. Looking forward to assisting you again. Stay safe and take care!"),
+        (
+            "Logging off, sir. Zen is shutting down. Hope I was able to help. See you soon and take care!")
+    ]
+    return random.choice(shutdown_messages)
 
 
 def permission_command():
     while True:
         permission = takecommand()
-        if "wake up" in permission:
+        if "wake up" in permission.lower() or "good morning" in permission.lower() or "game time" in permission.lower() or "raise and shine" in permission.lower() or "on" in permission.lower():
             TaskExecution()
         elif "shutdown" in permission.lower() or "stop" in permission.lower() or "turn off" in permission.lower() or "power off" in permission.lower() or "shut down" in permission.lower():
-            shutdown_assistant()
+            message=zen_shutdown()
+            say(message)
+            sys.exit()
 
 
 if __name__ == '__main__':
