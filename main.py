@@ -1,4 +1,7 @@
 import re
+import requests
+import subprocess
+import urllib.parse
 import cv2
 import pyttsx3
 import speech_recognition as sr
@@ -43,6 +46,80 @@ def takecommand():
             return query
         except Exception as e:
             return "sorry could not understand sir"
+
+
+def get_current_location():
+    say("Just a moment, sir...")
+    try:
+        ipAdd = requests.get('https://api.ipify.org').text
+        url = f'https://get.geojs.io/v1/ip/geo/{ipAdd}.json'
+        geo_requests = requests.get(url)
+        geo_data = geo_requests.json()
+
+        city = geo_data.get('city', 'Unknown')
+        state = geo_data.get('state', 'Unknown')
+        country = geo_data.get('country', 'Unknown')
+
+        # Correcting "India" if missing
+        if country == 'Unknown':
+            country = 'India'
+
+        location = f"{city}, {state}, {country}"
+        return location
+    except Exception as e:
+        say("Sorry, sir. Due to a network issue, I am not able to find where we are.")
+        print(f"Error: {e}")
+        return None
+def my_get_current_location():
+    say("Just a moment, sir...")
+    try:
+        ipAdd = requests.get('https://api.ipify.org').text
+        url = f'https://get.geojs.io/v1/ip/geo/{ipAdd}.json'
+        geo_requests = requests.get(url)
+        geo_data = geo_requests.json()
+
+        city = geo_data.get('city', 'Unknown')
+        state = geo_data.get('state', 'Unknown')
+        country = geo_data.get('country', 'Unknown')
+
+        # Correcting "India" if missing
+        if country == 'Unknown':
+            country = 'India'
+
+        location = f"It seems we are in {city} city of {state} in {country}"
+        return location
+    except Exception as e:
+        say("Sorry, sir. Due to a network issue, I am not able to find where we are.")
+        print(f"Error: {e}")
+        return None
+
+
+def get_shortest_path(start_location, end_location, api_key):
+    try:
+        # URL encode the locations to handle spaces and special characters
+        start_location_encoded = urllib.parse.quote_plus(start_location)
+        end_location_encoded = urllib.parse.quote_plus(end_location)
+
+        # Construct the API URL
+        url = f"https://maps.googleapis.com/maps/api/directions/json?origin={start_location_encoded}&destination={end_location_encoded}&key={api_key}"
+
+        # Make the request to the Google Maps Directions API
+        response = requests.get(url)
+        data = response.json()
+
+        # Check the status of the response
+        if data['status'] == 'OK':
+            routes = data.get('routes', [])
+            if routes:
+                # Construct the Google Maps URL for directions
+                map_url = f"https://www.google.com/maps/dir/?api=1&origin={start_location_encoded}&destination={end_location_encoded}&travelmode=driving"
+                return map_url
+            else:
+                return "No routes found."
+        else:
+            return f"API Error: {data['status']}"
+    except requests.RequestException as e:
+        return f"Error retrieving directions: {e}"
 
 
 def play_random_song():
@@ -205,10 +282,13 @@ def zen_sleep():
 
 def TaskExecution():
     say("welcome back sir")
+    api_key = "AIzaSyA2n_B-51waV2Ogr1J3rzlyuRycmw_bkDU"
     while True:
         query = takecommand()
         if "shutdown" in query.lower() or "stop" in query.lower() or "turn off" in query.lower() or "power off" in query.lower() or "shut down" in query.lower():
-            pass
+            mes=zen_shutdown()
+            say(mes)
+            sys.exit()
         else:
             sites = [
                 ["youtube", "https://www.youtube.com"],
@@ -311,6 +391,34 @@ def TaskExecution():
                         say("Opening notepad.")
                     else:
                         say("notepad executable not found.")
+
+            elif 'navigate to' in query.lower() or "take me to" in query.lower():
+                if 'navigate to' in query.lower():
+                    end_location = query.lower().split('navigate to', 1)[1].strip()
+                elif 'take me to' in query:
+                    end_location = query.lower().split('take me to', 1)[1].strip()
+                if end_location:
+                    start_location = get_current_location()
+                    if not start_location:
+                        say("Unable to get the current location. Please provide your current location in latitude,longitude format.")
+                        start_location = takecommand()
+
+                    if start_location:
+                        map_url = get_shortest_path(start_location, end_location, api_key)
+                        if map_url.startswith("http"):
+                            webbrowser.open(map_url)
+                            say(f"Navigating to {end_location}")
+                        else:
+                            say(map_url)
+                    else:
+                        say("Unable to process navigation.")
+                else:
+                    say("Please provide the destination location.")
+
+
+            elif "where are we" in query.lower() or "where am i" in query.lower():
+                mymes=my_get_current_location()
+                say(mymes)
 
 
             elif "introduce" in query.lower() or "yourself" in query.lower() or "about you" in query.lower():
