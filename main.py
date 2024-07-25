@@ -44,11 +44,11 @@ def takecommand():
             print(f"User said: {query}")
             return query
         except Exception as e:
-            return "sorry could not understand sir"
+            return "sorry could not understand Boss"
 
 
 def get_current_location():
-    say("Just a moment, sir...")
+    say("Just a moment, Boss...")
     try:
         ipAdd = requests.get('https://api.ipify.org').text
         url = f'https://get.geojs.io/v1/ip/geo/{ipAdd}.json'
@@ -66,13 +66,13 @@ def get_current_location():
         location = f"{city}, {state}, {country}"
         return location
     except Exception as e:
-        say("Sorry, sir. Due to a network issue, I am not able to find where we are.")
+        say("Sorry, Boss. Due to a network issue, I am not able to find where we are.")
         print(f"Error: {e}")
         return None
 
 
 def my_get_current_location():
-    say("Just a moment, sir...")
+    say("Just a moment, Boss...")
     try:
         ipAdd = requests.get('https://api.ipify.org').text
         url = f'https://get.geojs.io/v1/ip/geo/{ipAdd}.json'
@@ -90,7 +90,7 @@ def my_get_current_location():
         location = f"It seems we are in {city} city of {state} in {country}"
         return location
     except Exception as e:
-        say("Sorry, sir. Due to a network issue, I am not able to find where we are.")
+        say("Sorry, Boss. Due to a network issue, I am not able to find where we are.")
         print(f"Error: {e}")
         return None
 
@@ -267,15 +267,15 @@ def zen_intro():
 def zen_sleep():
     sleep_messages = [
         (
-            "Entering sleep mode, sir. Please call me if you require assistance. Rest well!"),
+            "Entering sleep mode, Boss. Please call me if you require assistance. Rest well!"),
         (
-            "Zen is now in standby, sir. Kindly call out if you need my help. Have a good rest!"),
+            "Zen is now in standby, Boss. Kindly call out if you need my help. Have a good rest!"),
         (
-            "Entering sleep mode now, sir. Please call for me when you return. Sweet dreams!"),
+            "Entering sleep mode now, Boss. Please call for me when you return. Sweet dreams!"),
         (
-            "Zen is now sleeping, sir. Feel free to call if you need anything. Enjoy your rest!"),
+            "Zen is now sleeping, Boss. Feel free to call if you need anything. Enjoy your rest!"),
         (
-            "Sleep mode activated, sir. Do call me if you need assistance. Rest peacefully!")
+            "Sleep mode activated, Boss. Do call me if you need assistance. Rest peacefully!")
     ]
     return random.choice(sleep_messages)
 
@@ -293,7 +293,7 @@ def open_notepad():
 
 def TaskExecution():
     c = 0
-    say("welcome back sir")
+    say("welcome back Boss")
     api_key = "AIzaSyA2n_B-51waV2Ogr1J3rzlyuRycmw_bkDU"
     while True:
         query = takecommand()
@@ -377,7 +377,7 @@ def TaskExecution():
 
             for site in sites:
                 if f"open {site[0]}".lower() in query.lower():
-                    say(f"opening {site[0]} sir...")
+                    say(f"opening {site[0]} Boss...")
                     webbrowser.open(site[1])
                     c += 1
 
@@ -391,7 +391,7 @@ def TaskExecution():
 
             elif "time" in query:
                 srtfTime = datetime.datetime.now().strftime("%H:%M:%S")
-                say(f"Time is {srtfTime} sir..")
+                say(f"Time is {srtfTime} Boss..")
                 c += 1
 
 
@@ -438,7 +438,7 @@ def TaskExecution():
 
 
 
-            elif "you can sleep" in query.lower() or "take a nap" in query.lower() or "go to sleep" in query.lower() or "you can go to sleep" in query.lower():
+            elif "you can sleep" in query.lower() or  "go to sleep" in query.lower() or "you can go to sleep" in query.lower():
                 c += 1
                 sleepmess = zen_sleep()
                 say(sleepmess)
@@ -450,22 +450,22 @@ def TaskExecution():
                     say(response)
                     print(response)
 
-            say("Anything else sir?")
+            say("Anything else Boss?")
             c = 0
 
 
 def zen_shutdown():
     shutdown_messages = [
         (
-            "Goodbye, sir. Zen is shutting down. Thank you for letting me assist you. Until next time, take care!"),
+            "Goodbye, Boss. Zen is shutting down. Thank you for letting me assist you. Until next time, take care!"),
         (
-            "Farewell, sir. Zen is going offline. It was a pleasure assisting you. Stay well until we meet again!"),
+            "Farewell, Boss. Zen is going offline. It was a pleasure assisting you. Stay well until we meet again!"),
         (
-            "Signing off, sir. Zen is powering down. Thank you for the opportunity to help. Have a great day ahead!"),
+            "Signing off, Boss. Zen is powering down. Thank you for the opportunity to help. Have a great day ahead!"),
         (
-            "Goodbye for now, sir. Zen is going offline. Looking forward to assisting you again. Stay safe and take care!"),
+            "Goodbye for now, Boss. Zen is going offline. Looking forward to assisting you again. Stay safe and take care!"),
         (
-            "Logging off, sir. Zen is shutting down. Hope I was able to help. See you soon and take care!")
+            "Logging off, Boss. Zen is shutting down. Hope I was able to help. See you soon and take care!")
     ]
     return random.choice(shutdown_messages)
 
@@ -484,7 +484,7 @@ def greet_and_time():
         greeting = "Good evening"
 
     # Construct the message
-    message = f"{greeting}, sir. The time is {current_time}."
+    message = f"{greeting}, Boss. The time is {current_time}."
 
     return message
 
@@ -495,7 +495,7 @@ def greet_and_time():
 def permission_command():
     while True:
         permission = takecommand()
-        if "wake up" in permission.lower() or "good morning" in permission.lower() or "game time" in permission.lower() or "raise and shine" in permission.lower() or "on" in permission.lower():
+        if "wake up" in permission.lower() or "good morning" in permission.lower() or "game time" in permission.lower() or "get up" in permission.lower() or "on" in permission.lower():
             message = greet_and_time()
             say(message)
             TaskExecution()
