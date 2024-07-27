@@ -446,9 +446,15 @@ def TaskExecution():
 
             else:
                 if (c == 0):
-                    response = generate_response(query.lower())
-                    say(response)
-                    print(response)
+                    say("i guess i have to ask a gpt to answer it")
+                    say("do you  want to continue?")
+                    ans=takecommand()
+                    if 'yes' in ans.lower() or 'sure' in ans.lower() or 'go for it' in ans.lower() or 'do it' in ans.lower():
+                        response = generate_response(query.lower())
+                        say(response)
+                        print(response)
+                    else:
+                        break
 
             say("Anything else Boss?")
             c = 0
