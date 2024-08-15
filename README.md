@@ -1,4 +1,4 @@
-# Zen: Your Voice-Controlled Assistant
+# MAX: Your Voice-Controlled Assistant
 
 Welcome to Zen, a voice-controlled assistant designed to enhance your daily activities with advanced features like face recognition and seamless interaction.
 
